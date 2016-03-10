@@ -11,7 +11,7 @@
             <input id="m" autocomplete="off" type="text"><button>Send</button>
         </form>
         <script src="/socket.io/socket.io.js"></script>
-        <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.min.js"></script>
         <script src="/public/bower_components/js-cookie/src/js.cookie.js"></script>
         <script>
             (function(){
@@ -28,7 +28,7 @@
                 });
                 
                 socket.on('chat message', function(name,id,msg,secret) {
-                    $('#messages').append($('<li>').html('<span id="' + id.substr(2) + '">' + name + '</span>' + ': ' + msg).addClass(function(){
+                    $('#messages').append($('<li>').html('<span>' + name + '</span>' + ': ' + msg).attr('data-socket',id.substr(2)).attr('data-name',name).click(msgTo).addClass(function(){
                         if (secret) {
                             sendTo = false;
                             $('#sendTo').text('');
@@ -38,30 +38,32 @@
                 });
                 
                 socket.on('join',function(user,id){
-                    $('#messages').append($('<li>').html(user +' joined the room'));
-                    $('#users').append($('<li>').html(user).attr('id',id.substr(2)).click(function(){
-                        sendTo = $(this).attr('id');
-                        var name = $(this).text();
-                        $('#sendTo').text('Send to ' + name);
-                    }));
+                    msg(user +' joined the room');
+                    $('#users').append($('<li>').html(user).attr('data-socket',id.substr(2)).attr('data-name',user).click(msgTo));
                 });
                 
                 socket.on('users',function(names){
                     for (var key in names){
-                        $('#users').append($('<li>').html(names[key]).attr('id',key.substr(2)).click(function(){
-                            $('input').focus();
-                            sendTo = $(this).attr('id');
-                            var name = $(this).text();
-                            $('#sendTo').text('Send to ' + name);
-                        }));
+                        $('#users').append($('<li>').html(names[key]).attr('data-socket',key.substr(2)).attr('data-name',names[key]).click(msgTo));
                     }
                     console.log(names);
                 });
                 
                 socket.on('left', function(user,id){
-                    $('#messages').append($('<li>').text(user + ' left the room'));
-                    $('#users #' + id.substr(2)).remove();
+                    msg(user + ' left the room');
+                    $('#users [data-socket=' + id.substr(2) + ']').remove();
                 });
+                
+                function msgTo () {
+                    $('input').focus();
+                    sendTo = $(this).attr('data-socket');
+                    var name = $(this).attr('data-name');
+                    $('#sendTo').text('Send to ' + name);
+                };
+                
+                function msg (text) {
+                    return $('#messages').append($('<li>').html(text));
+                };
                 
             })();
         </script>
