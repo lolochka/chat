@@ -1,0 +1,14 @@
+{
+  "name": "chat-app",
+  "description": "",
+  "main": "",
+  "moduleType": [],
+  "authors": [
+    "lolochka"
+  ],
+  "license": "MIT",
+  "homepage": "",
+  "dependencies": {
+    "js-cookie": "^2.1.0"
+  }
+}
